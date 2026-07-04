@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: int_payments_enriched
+    description: Payment records enriched with invoice and refund context.
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: net_paid_amount
+        tests:
+          - not_null
+
+  - name: int_opportunities_enriched
+    description: CRM opportunities enriched with lead, campaign and sales rep context.
+    columns:
+      - name: opportunity_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: opportunity_stage
+        tests:
+          - not_null
+
+  - name: int_product_usage_account_daily
+    description: Daily product usage metrics at account grain.
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+      - name: event_date
+        tests:
+          - not_null
+      - name: total_events
+        tests:
+          - not_null
