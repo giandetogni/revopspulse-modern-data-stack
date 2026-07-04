@@ -1,10 +1,11 @@
 select
     customer_id,
     account_id,
-    first_name,
-    last_name,
     email,
-    job_title,
+    full_name,
+    country,
+    cast(signup_date as date) as signup_date,
     cast(created_at as timestamp) as created_at,
-    cast(updated_at as timestamp) as updated_at
+    cast(updated_at as timestamp) as updated_at,
+    is_deleted
 from {{ source('postgres_source', 'customers') }}

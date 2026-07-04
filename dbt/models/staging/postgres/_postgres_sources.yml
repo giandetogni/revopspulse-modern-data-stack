@@ -11,16 +11,14 @@ sources:
       - name: customers
         loaded_at_field: updated_at
       - name: plans
-        loaded_at_field: updated_at
       - name: subscriptions
         loaded_at_field: updated_at
       - name: invoices
         loaded_at_field: updated_at
       - name: payments
-        loaded_at_field: updated_at
+        loaded_at_field: created_at
       - name: refunds
-        loaded_at_field: updated_at
+        loaded_at_field: created_at
       - name: sales_reps
-        loaded_at_field: updated_at
       - name: sales_targets
-        loaded_at_field: target_month
+        loaded_at_field: created_at

@@ -24,6 +24,19 @@ models:
               arguments:
                 to: ref('stg_postgres__accounts')
                 field: account_id
+      - name: email
+        tests:
+          - not_null
+
+  - name: stg_postgres__plans
+    columns:
+      - name: plan_id
+        tests:
+          - not_null
+          - unique
+      - name: monthly_price
+        tests:
+          - not_null
 
   - name: stg_postgres__subscriptions
     columns:
@@ -38,9 +51,12 @@ models:
               arguments:
                 to: ref('stg_postgres__accounts')
                 field: account_id
-      - name: mrr
+      - name: subscription_status
         tests:
           - not_null
+          - accepted_values:
+              arguments:
+                values: ['active', 'cancelled', 'trialing', 'past_due']
 
   - name: stg_postgres__invoices
     columns:
@@ -51,6 +67,12 @@ models:
       - name: account_id
         tests:
           - not_null
+      - name: invoice_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['draft', 'open', 'paid', 'void', 'uncollectible']
       - name: amount_due
         tests:
           - not_null
@@ -64,6 +86,12 @@ models:
       - name: account_id
         tests:
           - not_null
+      - name: payment_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['succeeded', 'failed', 'pending']
 
   - name: stg_postgres__refunds
     columns:
@@ -71,13 +99,9 @@ models:
         tests:
           - not_null
           - unique
-
-  - name: stg_postgres__plans
-    columns:
-      - name: plan_id
+      - name: payment_id
         tests:
           - not_null
-          - unique
 
   - name: stg_postgres__sales_reps
     columns:
@@ -88,6 +112,10 @@ models:
 
   - name: stg_postgres__sales_targets
     columns:
+      - name: target_id
+        tests:
+          - not_null
+          - unique
       - name: sales_rep_id
         tests:
           - not_null
