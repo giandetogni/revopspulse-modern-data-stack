@@ -47,3 +47,4 @@ airflow/airflow.db
 *.key
 secrets/
 credentials/
+dbt/.user.yml

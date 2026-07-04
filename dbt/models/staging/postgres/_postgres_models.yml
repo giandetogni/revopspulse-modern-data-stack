@@ -1,0 +1,96 @@
+version: 2
+
+models:
+  - name: stg_postgres__accounts
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+          - unique
+      - name: account_name
+        tests:
+          - not_null
+
+  - name: stg_postgres__customers
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_postgres__accounts')
+                field: account_id
+
+  - name: stg_postgres__subscriptions
+    columns:
+      - name: subscription_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_postgres__accounts')
+                field: account_id
+      - name: mrr
+        tests:
+          - not_null
+
+  - name: stg_postgres__invoices
+    columns:
+      - name: invoice_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: amount_due
+        tests:
+          - not_null
+
+  - name: stg_postgres__payments
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+
+  - name: stg_postgres__refunds
+    columns:
+      - name: refund_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_postgres__plans
+    columns:
+      - name: plan_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_postgres__sales_reps
+    columns:
+      - name: sales_rep_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_postgres__sales_targets
+    columns:
+      - name: sales_rep_id
+        tests:
+          - not_null
+      - name: target_month
+        tests:
+          - not_null
