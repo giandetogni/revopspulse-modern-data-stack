@@ -39,6 +39,13 @@ models:
           - not_null
 
   - name: stg_postgres__subscriptions
+    tests:
+      - valid_subscription_period:
+          arguments:
+            start_column: started_at
+            end_column: ended_at
+          config:
+            severity: warn
     columns:
       - name: subscription_id
         tests:

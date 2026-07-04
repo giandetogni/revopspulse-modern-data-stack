@@ -33,6 +33,13 @@ models:
 
   - name: fact_payments
     description: Payment fact table with refund-adjusted net paid amount.
+    tests:
+      - refund_not_greater_than_payment:
+          arguments:
+            refund_amount_column: refunded_amount
+            payment_amount_column: payment_amount
+          config:
+            severity: warn
     columns:
       - name: payment_id
         tests:
@@ -44,6 +51,9 @@ models:
       - name: net_paid_amount
         tests:
           - not_null
+          - amount_non_negative:
+              config:
+                severity: warn
 
   - name: fact_opportunities
     description: CRM opportunity fact table enriched with sales and marketing context.
@@ -72,3 +82,7 @@ models:
       - name: event_type
         tests:
           - not_null
+      - name: event_timestamp
+        tests:
+          - not_null
+          - event_timestamp_not_future
