@@ -11,6 +11,19 @@ default_args = {
     "retry_delay": timedelta(minutes=2),
 }
 
+postgres_env = {
+    "POSTGRES_HOST": "postgres",
+    "POSTGRES_PORT": "5432",
+    "POSTGRES_DB": "revopspulse",
+    "POSTGRES_USER": "revopspulse",
+    "POSTGRES_PASSWORD": "revopspulse",
+}
+
+dbt_env = {
+    **postgres_env,
+    "DBT_PROFILES_DIR": "/opt/airflow/project/dbt",
+}
+
 with DAG(
     dag_id="revopspulse_daily_pipeline",
     description="Daily ELT pipeline for RevOpsPulse SaaS revenue analytics.",
@@ -27,13 +40,7 @@ with DAG(
             "python src/ingestion/postgres_extractor.py "
             "--output-root /opt/airflow/project/raw"
         ),
-        env={
-            "POSTGRES_HOST": "postgres",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_DB": "revopspulse",
-            "POSTGRES_USER": "revopspulse",
-            "POSTGRES_PASSWORD": "revopspulse",
-        },
+        env=postgres_env,
         append_env=True,
     )
 
@@ -57,13 +64,7 @@ with DAG(
             "python src/ingestion/raw_json_loader.py "
             "--input-root /opt/airflow/project/raw/api"
         ),
-        env={
-            "POSTGRES_HOST": "postgres",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_DB": "revopspulse",
-            "POSTGRES_USER": "revopspulse",
-            "POSTGRES_PASSWORD": "revopspulse",
-        },
+        env=postgres_env,
         append_env=True,
     )
 
@@ -99,15 +100,35 @@ with DAG(
             "python src/ingestion/raw_json_loader.py "
             "--input-root /opt/airflow/project/raw/events"
         ),
-        env={
-            "POSTGRES_HOST": "postgres",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_DB": "revopspulse",
-            "POSTGRES_USER": "revopspulse",
-            "POSTGRES_PASSWORD": "revopspulse",
-        },
+        env=postgres_env,
+        append_env=True,
+    )
+
+    dbt_snapshot = BashOperator(
+        task_id="dbt_snapshot",
+        bash_command=(
+            "cd /opt/airflow/project/dbt && "
+            "dbt snapshot --profiles-dir /opt/airflow/project/dbt"
+        ),
+        env=dbt_env,
+        append_env=True,
+    )
+
+    dbt_build = BashOperator(
+        task_id="dbt_build",
+        bash_command=(
+            "cd /opt/airflow/project/dbt && "
+            "dbt build --profiles-dir /opt/airflow/project/dbt"
+        ),
+        env=dbt_env,
         append_env=True,
     )
 
     extract_api_sources >> load_api_raw_json
     generate_product_events >> extract_product_events >> load_product_events_raw_json
+
+    [
+        extract_postgres_sources,
+        load_api_raw_json,
+        load_product_events_raw_json,
+    ] >> dbt_snapshot >> dbt_build
