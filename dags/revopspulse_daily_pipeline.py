@@ -18,7 +18,7 @@ with DAG(
     start_date=datetime(2026, 1, 1),
     schedule="@daily",
     catchup=False,
-    tags=["revopspulse", "postgres", "raw"],
+    tags=["revopspulse", "postgres", "api", "raw"],
 ) as dag:
     extract_postgres_sources = BashOperator(
         task_id="extract_postgres_sources",
@@ -34,4 +34,20 @@ with DAG(
             "POSTGRES_USER": "revopspulse",
             "POSTGRES_PASSWORD": "revopspulse",
         },
+        append_env=True,
     )
+
+    extract_api_sources = BashOperator(
+        task_id="extract_api_sources",
+        bash_command=(
+            "cd /opt/airflow/project && "
+            "python src/ingestion/api_extractor.py "
+            "--base-url http://mock-crm-api:8000 "
+            "--output-root /opt/airflow/project/raw "
+            "--page-size 10 "
+            "--updated-since 2026-02-01T00:00:00Z"
+        ),
+        append_env=True,
+    )
+
+    [extract_postgres_sources, extract_api_sources]
