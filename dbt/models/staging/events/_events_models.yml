@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_events__product_events
+    description: One row per product usage event from NDJSON event files.
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: event_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - account_created
+                  - login
+                  - invite_user
+                  - create_project
+                  - use_core_feature
+                  - export_report
+                  - upgrade_prompt_viewed
+                  - billing_page_viewed
+                  - cancellation_started
+      - name: event_timestamp
+        tests:
+          - not_null
