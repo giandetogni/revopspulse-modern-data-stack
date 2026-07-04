@@ -129,3 +129,47 @@ models:
       - name: created_at
         tests:
           - not_null
+
+  - name: mart_revenue_monthly
+    description: Monthly SaaS revenue, payment quality, MRR, ARR, churn and logo retention metrics.
+    columns:
+      - name: metric_month
+        tests:
+          - not_null
+          - unique
+      - name: gross_revenue
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: net_revenue
+        tests:
+          - not_null
+      - name: mrr
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: arr
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: active_accounts
+        tests:
+          - not_null
+      - name: churned_accounts
+        tests:
+          - not_null
+      - name: payment_failure_rate
+        tests:
+          - not_null
+      - name: refund_rate
+        tests:
+          - not_null
+      - name: churn_rate
+        tests:
+          - not_null
+      - name: logo_retention_rate
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
