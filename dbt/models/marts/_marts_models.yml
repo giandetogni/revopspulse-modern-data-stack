@@ -264,3 +264,57 @@ models:
       - name: created_at
         tests:
           - not_null
+
+  - name: mart_sales_commissions_monthly
+    description: Monthly sales incentive and commission payout metrics by sales rep.
+    columns:
+      - name: commission_month
+        tests:
+          - not_null
+      - name: sales_rep_id
+        tests:
+          - not_null
+      - name: sales_rep_name
+        tests:
+          - not_null
+      - name: target_revenue
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: attributed_payments
+        tests:
+          - not_null
+      - name: eligible_payments
+        tests:
+          - not_null
+      - name: ineligible_payments
+        tests:
+          - not_null
+      - name: commissionable_revenue
+        tests:
+          - not_null
+      - name: quota_attainment
+        tests:
+          - not_null
+      - name: base_commission_amount
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: accelerator_commission_amount
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: clawback_amount
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: commission_payout
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: commission_accuracy_rate
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
