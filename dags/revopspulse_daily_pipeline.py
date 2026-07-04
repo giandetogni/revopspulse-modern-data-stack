@@ -18,7 +18,7 @@ with DAG(
     start_date=datetime(2026, 1, 1),
     schedule="@daily",
     catchup=False,
-    tags=["revopspulse", "postgres", "api", "raw"],
+    tags=["revopspulse", "postgres", "api", "events", "raw"],
 ) as dag:
     extract_postgres_sources = BashOperator(
         task_id="extract_postgres_sources",
@@ -50,4 +50,31 @@ with DAG(
         append_env=True,
     )
 
-    [extract_postgres_sources, extract_api_sources]
+    generate_product_events = BashOperator(
+        task_id="generate_product_events",
+        bash_command=(
+            "cd /opt/airflow/project && "
+            "python src/generators/generate_product_events.py "
+            "--output-dir /opt/airflow/project/data/product_events "
+            "--start-date 2026-01-01 "
+            "--days 120 "
+            "--seed 42"
+        ),
+        append_env=True,
+    )
+
+    extract_product_events = BashOperator(
+        task_id="extract_product_events",
+        bash_command=(
+            "cd /opt/airflow/project && "
+            "python src/ingestion/events_extractor.py "
+            "--input-dir /opt/airflow/project/data/product_events "
+            "--output-root /opt/airflow/project/raw "
+            "--updated-since 2026-02-01T00:00:00Z"
+        ),
+        append_env=True,
+    )
+
+    generate_product_events >> extract_product_events
+
+    [extract_postgres_sources, extract_api_sources, extract_product_events]
