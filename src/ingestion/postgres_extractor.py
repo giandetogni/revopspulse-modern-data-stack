@@ -4,10 +4,13 @@ import argparse
 import csv
 import hashlib
 import json
-import subprocess
+import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+import psycopg
+from psycopg.rows import dict_row
 
 DEFAULT_TABLES = [
     "accounts",
@@ -26,12 +29,29 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def record_hash(row: dict[str, str]) -> str:
-    payload = json.dumps(row, sort_keys=True, ensure_ascii=False)
+def record_hash(row: dict[str, object]) -> str:
+    payload = json.dumps(row, sort_keys=True, ensure_ascii=False, default=str)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def extract_table(table_name: str, batch_id: str, extracted_at: datetime, output_root: Path) -> Path:
+def get_connection() -> psycopg.Connection:
+    return psycopg.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=int(os.getenv("POSTGRES_PORT", "5432")),
+        dbname=os.getenv("POSTGRES_DB", "revopspulse"),
+        user=os.getenv("POSTGRES_USER", "revopspulse"),
+        password=os.getenv("POSTGRES_PASSWORD", "revopspulse"),
+        row_factory=dict_row,
+    )
+
+
+def extract_table(
+    conn: psycopg.Connection,
+    table_name: str,
+    batch_id: str,
+    extracted_at: datetime,
+    output_root: Path,
+) -> Path:
     load_date = extracted_at.date().isoformat()
 
     output_dir = output_root / "postgres" / table_name / f"load_date={load_date}" / f"batch_id={batch_id}"
@@ -39,52 +59,31 @@ def extract_table(table_name: str, batch_id: str, extracted_at: datetime, output
 
     output_path = output_dir / "data.csv"
 
-    sql = f"copy (select * from source.{table_name}) to stdout with csv header"
+    with conn.cursor() as cur:
+        cur.execute(f"select * from source.{table_name}")
+        rows = cur.fetchall()
+        source_fieldnames = [desc.name for desc in cur.description]
 
-    result = subprocess.run(
-        [
-            "docker",
-            "exec",
-            "-i",
-            "revopspulse-postgres",
-            "psql",
-            "-U",
-            "revopspulse",
-            "-d",
-            "revopspulse",
-            "-c",
-            sql,
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-
-    source_lines = result.stdout.splitlines()
-    reader = csv.DictReader(source_lines)
-
-    rows_written = 0
+    metadata_fieldnames = [
+        "source_system",
+        "source_table_or_endpoint",
+        "batch_id",
+        "extracted_at",
+        "load_date",
+        "raw_file_path",
+        "record_hash",
+    ]
 
     with output_path.open("w", newline="", encoding="utf-8") as f:
-        source_fieldnames = reader.fieldnames or []
-        metadata_fieldnames = [
-            "source_system",
-            "source_table_or_endpoint",
-            "batch_id",
-            "extracted_at",
-            "load_date",
-            "raw_file_path",
-            "record_hash",
-        ]
-
         writer = csv.DictWriter(f, fieldnames=source_fieldnames + metadata_fieldnames)
         writer.writeheader()
 
-        for row in reader:
-            row_hash = record_hash(row)
+        for row in rows:
+            row_dict = dict(row)
+            row_hash = record_hash(row_dict)
 
             enriched_row = {
-                **row,
+                **row_dict,
                 "source_system": "postgres",
                 "source_table_or_endpoint": table_name,
                 "batch_id": batch_id,
@@ -95,9 +94,8 @@ def extract_table(table_name: str, batch_id: str, extracted_at: datetime, output
             }
 
             writer.writerow(enriched_row)
-            rows_written += 1
 
-    print(f"extracted table={table_name} rows={rows_written} path={output_path}")
+    print(f"extracted table={table_name} rows={len(rows)} path={output_path}")
     return output_path
 
 
@@ -114,8 +112,9 @@ def main() -> None:
     print(f"batch_id={batch_id}")
     print(f"extracted_at={extracted_at.isoformat()}")
 
-    for table in args.tables:
-        extract_table(table, batch_id, extracted_at, output_root)
+    with get_connection() as conn:
+        for table in args.tables:
+            extract_table(conn, table, batch_id, extracted_at, output_root)
 
 
 if __name__ == "__main__":
