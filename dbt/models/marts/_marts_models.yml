@@ -86,3 +86,46 @@ models:
         tests:
           - not_null
           - event_timestamp_not_future
+
+  - name: mart_data_quality_summary
+    description: Data quality summary mart with business impact for key dbt checks.
+    columns:
+      - name: run_date
+        tests:
+          - not_null
+      - name: source_name
+        tests:
+          - not_null
+      - name: model_name
+        tests:
+          - not_null
+      - name: test_name
+        tests:
+          - not_null
+      - name: severity
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['warn', 'error']
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['pass', 'warn', 'fail']
+      - name: failed_records
+        tests:
+          - not_null
+      - name: total_records
+        tests:
+          - not_null
+      - name: failure_rate
+        tests:
+          - not_null
+      - name: business_impact
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
