@@ -1,0 +1,12 @@
+version: 2
+
+snapshots:
+  - name: subscription_snapshot
+    description: SCD Type 2 snapshot of subscription status and plan changes using updated_at.
+    columns:
+      - name: subscription_id
+        tests:
+          - not_null
+      - name: dbt_valid_from
+        tests:
+          - not_null
