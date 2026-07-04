@@ -173,3 +173,44 @@ models:
       - name: created_at
         tests:
           - not_null
+
+  - name: mart_product_usage_daily
+    description: Daily product usage, activation, adoption and inactivity metrics by account activity.
+    columns:
+      - name: usage_date
+        tests:
+          - not_null
+          - unique
+      - name: total_events
+        tests:
+          - not_null
+      - name: active_accounts
+        tests:
+          - not_null
+      - name: inactive_accounts
+        tests:
+          - not_null
+      - name: active_users
+        tests:
+          - not_null
+      - name: activated_accounts
+        tests:
+          - not_null
+      - name: core_feature_accounts
+        tests:
+          - not_null
+      - name: activation_rate
+        tests:
+          - not_null
+      - name: core_feature_adoption_rate
+        tests:
+          - not_null
+      - name: report_export_adoption_rate
+        tests:
+          - not_null
+      - name: cancellation_intent_rate
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
