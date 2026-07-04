@@ -214,3 +214,53 @@ models:
       - name: created_at
         tests:
           - not_null
+
+  - name: mart_marketing_roi_monthly
+    description: Monthly marketing ROI, CAC, cost per lead and funnel conversion metrics by campaign.
+    columns:
+      - name: metric_month
+        tests:
+          - not_null
+      - name: campaign_id
+        tests:
+          - not_null
+      - name: campaign_name
+        tests:
+          - not_null
+      - name: channel
+        tests:
+          - not_null
+      - name: marketing_spend
+        tests:
+          - not_null
+          - amount_non_negative
+      - name: leads_count
+        tests:
+          - not_null
+      - name: opportunities_count
+        tests:
+          - not_null
+      - name: closed_won_opportunities
+        tests:
+          - not_null
+      - name: closed_won_revenue
+        tests:
+          - not_null
+      - name: cost_per_lead
+        tests:
+          - not_null
+      - name: cac
+        tests:
+          - not_null
+      - name: lead_to_opportunity_conversion_rate
+        tests:
+          - not_null
+      - name: lead_to_closed_won_rate
+        tests:
+          - not_null
+      - name: marketing_roi
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
