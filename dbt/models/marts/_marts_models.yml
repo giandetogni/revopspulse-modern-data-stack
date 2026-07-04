@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: dim_accounts
+    description: Account dimension for SaaS customer analytics.
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+          - unique
+      - name: account_name
+        tests:
+          - not_null
+
+  - name: dim_customers
+    description: Customer dimension linked to accounts.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+
+  - name: dim_sales_reps
+    description: Sales representative dimension.
+    columns:
+      - name: sales_rep_id
+        tests:
+          - not_null
+          - unique
+
+  - name: fact_payments
+    description: Payment fact table with refund-adjusted net paid amount.
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: net_paid_amount
+        tests:
+          - not_null
+
+  - name: fact_opportunities
+    description: CRM opportunity fact table enriched with sales and marketing context.
+    columns:
+      - name: opportunity_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: opportunity_stage
+        tests:
+          - not_null
+
+  - name: fact_product_events
+    description: Incremental product event fact table.
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        tests:
+          - not_null
+      - name: event_type
+        tests:
+          - not_null

@@ -1,0 +1,22 @@
+select
+    payment_id,
+    invoice_id,
+    account_id,
+    subscription_id,
+    payment_date,
+    payment_month,
+    payment_status,
+    payment_method,
+    payment_amount,
+    refunded_amount,
+    net_paid_amount,
+    invoice_status,
+    amount_due,
+    amount_paid,
+    first_refund_date,
+    last_refund_date,
+    is_successful_payment,
+    has_refund,
+    currency,
+    created_at
+from {{ ref('int_payments_enriched') }}
