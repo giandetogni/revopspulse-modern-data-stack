@@ -1,0 +1,49 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Data / local artifacts
+data/
+raw/
+logs/
+tmp/
+*.parquet
+*.csv
+*.jsonl
+*.ndjson
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+profiles.yml
+
+# Airflow
+airflow/logs/
+airflow/plugins/
+airflow/airflow.db
+
+# Docker / local runtime
+.docker/
+*.pid
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Credentials
+*.pem
+*.key
+secrets/
+credentials/
