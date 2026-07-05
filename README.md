@@ -398,6 +398,19 @@ dbt CI validates:
 - `dbt snapshot`
 - `dbt build`
 
+
+## Evidence
+
+The repository includes lightweight execution evidence:
+
+- [Metrics Snapshot](dashboard/metrics_snapshot.md)
+- [GitHub Actions Screenshot](docs/screenshots/github_actions.png)
+- [Airflow DAG Screenshot](docs/screenshots/airflow_dag.png)
+
+![GitHub Actions](docs/screenshots/github_actions.png)
+
+![Airflow DAG](docs/screenshots/airflow_dag.png)
+
 ## Documentation
 
 Additional documentation:
