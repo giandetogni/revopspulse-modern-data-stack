@@ -1,0 +1,151 @@
+name: dbt CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  dbt-build:
+    name: dbt parse, compile and build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: revopspulse
+          POSTGRES_USER: revopspulse
+          POSTGRES_PASSWORD: revopspulse
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U revopspulse -d revopspulse"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: revopspulse
+      POSTGRES_USER: revopspulse
+      POSTGRES_PASSWORD: revopspulse
+      DBT_PROFILES_DIR: dbt
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python and dbt dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Wait for Postgres
+        run: |
+          python - <<'PY'
+          import os
+          import time
+
+          import psycopg
+
+          deadline = time.time() + 60
+          last_error = None
+
+          while time.time() < deadline:
+              try:
+                  with psycopg.connect(
+                      host=os.environ["POSTGRES_HOST"],
+                      port=os.environ["POSTGRES_PORT"],
+                      dbname=os.environ["POSTGRES_DB"],
+                      user=os.environ["POSTGRES_USER"],
+                      password=os.environ["POSTGRES_PASSWORD"],
+                  ):
+                      print("Postgres is ready.")
+                      raise SystemExit(0)
+              except Exception as exc:
+                  last_error = exc
+                  time.sleep(2)
+
+          raise SystemExit(f"Postgres was not ready: {last_error}")
+          PY
+
+      - name: Prepare source database
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          import psycopg
+
+          conn = psycopg.connect(
+              host=os.environ["POSTGRES_HOST"],
+              port=os.environ["POSTGRES_PORT"],
+              dbname=os.environ["POSTGRES_DB"],
+              user=os.environ["POSTGRES_USER"],
+              password=os.environ["POSTGRES_PASSWORD"],
+          )
+
+          with conn:
+              with conn.cursor() as cur:
+                  cur.execute(Path("sql/init/001_create_source_schema.sql").read_text())
+                  cur.execute(Path("sql/seed/002_seed_source_data.sql").read_text())
+
+          print("Source schema and seed data loaded.")
+          PY
+
+      - name: Create dbt profile
+        run: cp dbt/profiles.yml.example dbt/profiles.yml
+
+      - name: Generate and load RAW API and event data
+        run: |
+          python src/api_mock/mock_crm_api.py &
+          MOCK_API_PID=$!
+
+          sleep 3
+
+          python src/ingestion/api_extractor.py \
+            --base-url http://localhost:8000 \
+            --output-root raw \
+            --page-size 7 \
+            --updated-since 2026-02-01T00:00:00Z
+
+          python src/generators/generate_product_events.py \
+            --output-dir data/product_events \
+            --start-date 2026-01-01 \
+            --days 120 \
+            --seed 42
+
+          python src/ingestion/events_extractor.py \
+            --input-dir data/product_events \
+            --output-root raw \
+            --updated-since 2026-02-01T00:00:00Z
+
+          python src/ingestion/raw_json_loader.py --input-root raw
+
+          kill "$MOCK_API_PID"
+
+      - name: dbt debug
+        run: dbt debug --project-dir dbt --profiles-dir dbt
+
+      - name: dbt deps
+        run: dbt deps --project-dir dbt --profiles-dir dbt
+
+      - name: dbt parse
+        run: dbt parse --project-dir dbt --profiles-dir dbt
+
+      - name: dbt compile
+        run: dbt compile --project-dir dbt --profiles-dir dbt
+
+      - name: dbt snapshot
+        run: dbt snapshot --project-dir dbt --profiles-dir dbt
+
+      - name: dbt build
+        run: dbt build --project-dir dbt --profiles-dir dbt
