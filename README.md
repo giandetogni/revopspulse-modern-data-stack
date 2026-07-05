@@ -20,6 +20,43 @@ RevOpsPulse demonstrates:
 - CI/CD with Python quality checks and dbt build validation.
 - Technical documentation, runbook, incident response, cost estimate and trade-off notes.
 
+## Implementation Evidence at a Glance
+
+| Area | Evidence |
+|---|---:|
+| Airflow DAGs | 1 main DAG |
+| Airflow tasks | 8 tasks |
+| Source systems | 3 source types |
+| PostgreSQL source tables | 9 tables |
+| Mock API endpoints | 5 endpoints |
+| Product event types | 9 event types |
+| Product events loaded | 1,842 events |
+| Raw JSON records loaded | 1,952 records |
+| dbt models | 28 models |
+| dbt data tests | 178 tests |
+| dbt sources | 10 sources |
+| dbt snapshots | 1 snapshot |
+| Incremental dbt models | 1 incremental fact model |
+| Final business marts | 5 marts |
+| Python unit tests | 14 tests |
+| GitHub Actions workflows | 2 workflows |
+| Latest CI status | Python CI and dbt CI passing |
+
+Final mart outputs include:
+
+- 6 monthly revenue rows
+- 89 daily product usage rows
+- 33 monthly marketing ROI rows
+- 18 monthly sales commission rows
+- 4 data quality summary checks
+- 15 subscription snapshot rows
+
+The latest validated dbt run completed with:
+
+- 204 passing results
+- 3 expected warnings from intentional synthetic data quality issues
+- 0 errors
+  
 ## Problem
 
 Revenue Operations teams need reliable answers to questions such as:
