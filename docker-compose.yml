@@ -3,16 +3,16 @@ services:
     image: postgres:16-alpine
     container_name: revopspulse-postgres
     environment:
-      POSTGRES_DB: revopspulse
-      POSTGRES_USER: revopspulse
-      POSTGRES_PASSWORD: revopspulse
+      POSTGRES_DB: ${POSTGRES_DB:-revopspulse}
+      POSTGRES_USER: ${POSTGRES_USER:-revopspulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-revopspulse}
     ports:
       - "5432:5432"
     volumes:
       - revopspulse_postgres_data:/var/lib/postgresql/data
       - ./sql/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U revopspulse -d revopspulse"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,13 +39,13 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://revopspulse:revopspulse@postgres:5432/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER:-revopspulse}:${POSTGRES_PASSWORD:-revopspulse}@postgres:5432/airflow"
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
-      AIRFLOW__API_AUTH__JWT_SECRET: revopspulse_local_jwt_secret
-      AIRFLOW__API__SECRET_KEY: revopspulse_local_secret_key
+      AIRFLOW__API_AUTH__JWT_SECRET: "${AIRFLOW_API_JWT_SECRET:-revopspulse_local_jwt_secret_change_me}"
+      AIRFLOW__API__SECRET_KEY: "${AIRFLOW_API_SECRET_KEY:-revopspulse_local_secret_key_change_me}"
     volumes:
       - .:/opt/airflow/project
       - ./requirements.txt:/requirements.txt
@@ -62,13 +62,13 @@ services:
       airflow-init:
         condition: service_completed_successfully
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://revopspulse:revopspulse@postgres:5432/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER:-revopspulse}:${POSTGRES_PASSWORD:-revopspulse}@postgres:5432/airflow"
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
-      AIRFLOW__API_AUTH__JWT_SECRET: revopspulse_local_jwt_secret
-      AIRFLOW__API__SECRET_KEY: revopspulse_local_secret_key
+      AIRFLOW__API_AUTH__JWT_SECRET: "${AIRFLOW_API_JWT_SECRET:-revopspulse_local_jwt_secret_change_me}"
+      AIRFLOW__API__SECRET_KEY: "${AIRFLOW_API_SECRET_KEY:-revopspulse_local_secret_key_change_me}"
     ports:
       - "8080:8080"
     volumes:
@@ -89,13 +89,13 @@ services:
       airflow-init:
         condition: service_completed_successfully
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://revopspulse:revopspulse@postgres:5432/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER:-revopspulse}:${POSTGRES_PASSWORD:-revopspulse}@postgres:5432/airflow"
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
-      AIRFLOW__API_AUTH__JWT_SECRET: revopspulse_local_jwt_secret
-      AIRFLOW__API__SECRET_KEY: revopspulse_local_secret_key
+      AIRFLOW__API_AUTH__JWT_SECRET: "${AIRFLOW_API_JWT_SECRET:-revopspulse_local_jwt_secret_change_me}"
+      AIRFLOW__API__SECRET_KEY: "${AIRFLOW_API_SECRET_KEY:-revopspulse_local_secret_key_change_me}"
     volumes:
       - .:/opt/airflow/project
       - ./requirements.txt:/requirements.txt
@@ -114,13 +114,13 @@ services:
       airflow-init:
         condition: service_completed_successfully
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://revopspulse:revopspulse@postgres:5432/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER:-revopspulse}:${POSTGRES_PASSWORD:-revopspulse}@postgres:5432/airflow"
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
-      AIRFLOW__API_AUTH__JWT_SECRET: revopspulse_local_jwt_secret
-      AIRFLOW__API__SECRET_KEY: revopspulse_local_secret_key
+      AIRFLOW__API_AUTH__JWT_SECRET: "${AIRFLOW_API_JWT_SECRET:-revopspulse_local_jwt_secret_change_me}"
+      AIRFLOW__API__SECRET_KEY: "${AIRFLOW_API_SECRET_KEY:-revopspulse_local_secret_key_change_me}"
     volumes:
       - .:/opt/airflow/project
       - ./requirements.txt:/requirements.txt
