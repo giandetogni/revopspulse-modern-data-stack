@@ -404,6 +404,7 @@ dbt CI validates:
 The repository includes lightweight execution evidence:
 
 - [Metrics Snapshot](dashboard/metrics_snapshot.md)
+- [Demo Script](docs/demo_script.md)
 - [GitHub Actions Screenshot](docs/screenshots/github_actions.png)
 - [Airflow DAG Screenshot](docs/screenshots/airflow_dag.png)
 
