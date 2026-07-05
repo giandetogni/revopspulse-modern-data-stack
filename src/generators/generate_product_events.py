@@ -83,7 +83,9 @@ def generate_events(output_dir: Path, start_date: date, days: int, seed: int) ->
                 for event_type in EVENT_TYPES:
                     if random.random() <= event_probability(event_type):
                         seconds = random.randint(0, 86399)
-                        event_dt = datetime.combine(current_date, time.min, tzinfo=timezone.utc) + timedelta(seconds=seconds)
+                        event_dt = datetime.combine(current_date, time.min, tzinfo=timezone.utc) + timedelta(
+                            seconds=seconds
+                        )
                         event = build_event(event_number, account_id, event_type, event_dt)
                         f.write(json.dumps(event, sort_keys=True) + "\n")
                         event_number += 1

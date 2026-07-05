@@ -9,7 +9,6 @@ from typing import Any
 
 import psycopg
 
-
 CREATE_SCHEMA_SQL = "create schema if not exists raw;"
 
 CREATE_TABLE_SQL = """
@@ -146,10 +145,7 @@ def load_jsonl_files(input_root: Path) -> None:
                             file_inserted_rows += 1
                             inserted_rows += 1
 
-                print(
-                    "loaded file="
-                    f"{file_path} seen_rows={file_seen_rows} inserted_rows={file_inserted_rows}"
-                )
+                print("loaded file=" f"{file_path} seen_rows={file_seen_rows} inserted_rows={file_inserted_rows}")
 
         conn.commit()
 

@@ -106,20 +106,14 @@ with DAG(
 
     dbt_snapshot = BashOperator(
         task_id="dbt_snapshot",
-        bash_command=(
-            "cd /opt/airflow/project/dbt && "
-            "dbt snapshot --profiles-dir /opt/airflow/project/dbt"
-        ),
+        bash_command=("cd /opt/airflow/project/dbt && " "dbt snapshot --profiles-dir /opt/airflow/project/dbt"),
         env=dbt_env,
         append_env=True,
     )
 
     dbt_build = BashOperator(
         task_id="dbt_build",
-        bash_command=(
-            "cd /opt/airflow/project/dbt && "
-            "dbt build --profiles-dir /opt/airflow/project/dbt"
-        ),
+        bash_command=("cd /opt/airflow/project/dbt && " "dbt build --profiles-dir /opt/airflow/project/dbt"),
         env=dbt_env,
         append_env=True,
     )
@@ -127,8 +121,12 @@ with DAG(
     extract_api_sources >> load_api_raw_json
     generate_product_events >> extract_product_events >> load_product_events_raw_json
 
-    [
-        extract_postgres_sources,
-        load_api_raw_json,
-        load_product_events_raw_json,
-    ] >> dbt_snapshot >> dbt_build
+    (
+        [
+            extract_postgres_sources,
+            load_api_raw_json,
+            load_product_events_raw_json,
+        ]
+        >> dbt_snapshot
+        >> dbt_build
+    )

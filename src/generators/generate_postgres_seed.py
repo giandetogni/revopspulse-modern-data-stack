@@ -268,7 +268,9 @@ def main() -> None:
 
     OUTPUT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Wrote {OUTPUT_PATH}")
-    print(f"accounts={len(accounts)} customers={len(customers)} subscriptions={len(subscriptions)} invoices={len(invoices)} payments={len(payments)} refunds={len(refunds)}")
+    print(
+        f"accounts={len(accounts)} customers={len(customers)} subscriptions={len(subscriptions)} invoices={len(invoices)} payments={len(payments)} refunds={len(refunds)}"
+    )
 
 
 if __name__ == "__main__":
